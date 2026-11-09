@@ -1446,6 +1446,10 @@
 
       formatNumber(n) {
         if (n === undefined || isNaN(n)) return '0';
+        if (n === 0) return '0';
+        if (n < 10) {
+          return Number.isInteger(n) ? n.toString() : (Math.round(n * 10) / 10).toFixed(1);
+        }
         if (n < 1000) return Math.floor(n).toLocaleString();
         const suffixes = ['', 'k', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'];
         const i = Math.floor(Math.log10(n) / 3);
