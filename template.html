@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scarameow Teahouse Petting Simulator</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Yuji+Syuku&display=swap');
+
+    :root {
+      --bg-deep: #161210;
+      --bg-timber: #221a15;
+      --bg-panel: #2a211a;
+      --bg-plank: #332820;
+      --bg-plank-hover: #3d3127;
+      --paper-cream: #f4ecdf;
+      --paper-text: #2c2017;
+      --text-main: #f5ebe1;
+      --text-muted: #bda899;
+      --text-dark: #221811;
+      --amber-warm: #e59a24;
+      --amber-deep: #a1640a;
+      --matcha-green: #5c7b47;
+      --matcha-dark: #3c522e;
+      --vermilion: #c84b31;
+      --vermilion-dark: #8c2a16;
+      --brass: #c9a463;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-deep);
+      background-image: 
+        radial-gradient(ellipse at 20% 10%, rgba(229, 154, 36, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 90%, rgba(92, 123, 71, 0.07) 0%, transparent 60%),
+        repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.03) 0px, rgba(0, 0, 0, 0.03) 2px, transparent 2px, transparent 6px);
+      color: var(--text-main);
+      user-select: none;
+      -webkit-user-select: none;
+      overflow-x: hidden;
+    }
+
+    .font-title {
+      font-family: 'Fredoka', cursive, sans-serif;
+    }
+
+    .font-scroll {
+      font-family: 'Yuji Syuku', serif, cursive;
+    }
+
+    /* Tactile 3D Buttons - Physical press mechanics */
+    .btn-tactile-amber {
+      background: linear-gradient(180deg, #f0a635 0%, #e0921a 100%);
+      color: #1e1307;
+      font-weight: 800;
+      border: none;
+      box-shadow: 0 4px 0 #995c07, 0 6px 14px rgba(0,0,0,0.4);
+      transition: all 0.08s ease;
+      cursor: pointer;
+    }
+    .btn-tactile-amber:hover {
+      background: linear-gradient(180deg, #f7b44a 0%, #e89c25 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 5px 0 #995c07, 0 8px 16px rgba(0,0,0,0.45);
+    }
+    .btn-tactile-amber:active {
+      transform: translateY(3px) !important;
+      box-shadow: 0 1px 0 #995c07, 0 2px 5px rgba(0,0,0,0.3) !important;
+    }
+
+    .btn-tactile-timber {
+      background: linear-gradient(180deg, #3d3027 0%, #30251d 100%);
+      color: #ede2d5;
+      font-weight: 700;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 3px 0 #1a130e, 0 4px 8px rgba(0,0,0,0.35);
+      transition: all 0.08s ease;
+      cursor: pointer;
+    }
+    .btn-tactile-timber:hover {
+      background: linear-gradient(180deg, #46372d 0%, #382b22 100%);
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 0 #1a130e, 0 6px 10px rgba(0,0,0,0.4);
+    }
+    .btn-tactile-timber:active {
+      transform: translateY(2px) !important;
+      box-shadow: 0 1px 0 #1a130e !important;
+    }
+
+    .btn-tactile-matcha {
+      background: linear-gradient(180deg, #688c50 0%, #54723f 100%);
+      color: #f7faf4;
+      font-weight: 800;
+      border: none;
+      box-shadow: 0 3px 0 #374b29, 0 5px 12px rgba(0,0,0,0.35);
+      transition: all 0.08s ease;
+      cursor: pointer;
+    }
+    .btn-tactile-matcha:hover {
+      background: linear-gradient(180deg, #749c5a 0%, #5c7e46 100%);
+      transform: translateY(-1px);
+    }
+    .btn-tactile-matcha:active {
+      transform: translateY(2px) !important;
+      box-shadow: 0 1px 0 #374b29 !important;
+    }
+
+    /* Wooden Slats / Cards */
+    .wood-card {
+      background: linear-gradient(180deg, #2b211a 0%, #231b14 100%);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 2px solid rgba(0, 0, 0, 0.5);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+      transition: all 0.12s ease;
+    }
+    .wood-card:hover {
+      background: linear-gradient(180deg, #33271f 0%, #292018 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.45);
+    }
+
+    /* Wooden Affordable state - warm honey wood edge, NOT glowing cyan box! */
+    .wood-affordable {
+      border-left: 4px solid var(--amber-warm) !important;
+      background: linear-gradient(180deg, #342820 0%, #291e17 100%) !important;
+      opacity: 1 !important;
+    }
+    .wood-affordable:hover {
+      background: linear-gradient(180deg, #3d2f25 0%, #30241b 100%) !important;
+    }
+
+    /* Washi Paper Scroll / Speech Note */
+    .washi-scroll {
+      background: #f3ebd9;
+      color: #2b1f16;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.2);
+      border-radius: 6px;
+      position: relative;
+    }
+    .washi-scroll::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      left: 14px;
+      width: 28px;
+      height: 10px;
+      background: rgba(200, 75, 49, 0.85); /* Red seal washi tape */
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      border-radius: 1px;
+    }
+
+    /* Idle teacup float */
+    @keyframes teacupFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-7px) rotate(-0.5deg); }
+    }
+    .animate-teacup {
+      animation: teacupFloat 3.8s ease-in-out infinite;
+    }
+
+    /* Squash & stretch on pet */
+    .pet-bounce {
+      cursor: pointer;
+      transition: transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .pet-squish {
+      transform: scale(1.1, 0.9) translateY(4px) !important;
+    }
+
+    /* Rising floating numbers */
+    @keyframes floatScritch {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(0.9);
+      }
+      50% {
+        transform: translate(calc(-50% + var(--dx)), -45px) scale(1.15);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--dx) * 1.4), -95px) scale(0.85);
+      }
+    }
+    .scritch-float-num {
+      position: absolute;
+      pointer-events: none;
+      animation: floatScritch 1s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+      font-weight: 800;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.85);
+      z-index: 60;
+    }
+
+    /* Golden item floating */
+    @keyframes featherGlider {
+      0% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-16px) rotate(8deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+    .feather-glide {
+      animation: featherGlider 2.8s ease-in-out infinite;
+      filter: drop-shadow(0 4px 12px rgba(229, 154, 36, 0.65));
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .feather-glide:hover {
+      transform: scale(1.25) rotate(12deg);
+    }
+
+    /* Custom scrollbar matching roasted wood */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1a1410;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #3b2e25;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4a3a2f;
+    }
+
+    /* Wooden tea tag for upgrades */
+    .tea-tag {
+      background: linear-gradient(180deg, #3d3027 0%, #2f241c 100%);
+      border-top: 1px solid rgba(255,255,255,0.09);
+      box-shadow: 0 3px 0 #18120e, 0 3px 6px rgba(0,0,0,0.3);
+      border-radius: 8px;
+      transition: all 0.1s ease;
+      cursor: pointer;
+    }
+    .tea-tag:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(180deg, #48392f 0%, #362a21 100%);
+      box-shadow: 0 5px 0 #18120e, 0 6px 10px rgba(0,0,0,0.4);
+    }
+    .tea-tag:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #18120e;
+    }
+    .tea-tag-ready {
+      border-top: 2px solid var(--amber-warm) !important;
+      opacity: 1 !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- TOP TEA HOUSE BANNER -->
+  <header class="w-full bg-[#1b1511] border-b border-[#2d221a] px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-lg z-40 relative">
+    
+    <!-- Title & Teahouse seal -->
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-[#2c2017] border border-[#3e2e22] flex items-center justify-center text-xl shadow-inner text-amber-400">
+        🍵
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base sm:text-lg font-title font-bold tracking-wide text-[#f7ede2]">
+            Scarameow Tea Sanctuary
+          </h1>
+          <span class="text-[11px] bg-[#2e231a] text-amber-300/90 px-2 py-0.5 rounded font-mono font-semibold border border-[#403125]">
+            猫喫茶
+          </span>
+        </div>
+        <p class="text-xs text-[#a89688]">
+          Warm Teacup Inhabitant • Scritch & Purr Parlor
+        </p>
+      </div>
+    </div>
+
+    <!-- Wooden News Plaque -->
+    <div class="hidden md:flex flex-1 max-w-lg mx-4 bg-[#231b15] border-t border-[#362a21] border-b border-[#140f0c] rounded-md px-3.5 py-1.5 items-center gap-2.5 text-xs shadow-inner">
+      <span class="text-amber-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5 shrink-0">
+        <span class="inline-block w-2 h-2 rounded-full bg-amber-500"></span>
+        Teahouse Chronicle:
+      </span>
+      <div class="overflow-hidden whitespace-nowrap w-full">
+        <div id="news-ticker-text" class="text-[#cfbeaf] transition-opacity duration-300 truncate font-medium">
+          Scarameow seen menacingly loafing inside warm yellow mug...
+        </div>
+      </div>
+    </div>
+
+    <!-- Tactile Navigation Controls -->
+    <div class="flex items-center gap-2">
+      <button id="btn-sound" title="Toggle Sound" class="btn-tactile-timber px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5">
+        <span id="sound-icon">🔊</span>
+        <span class="hidden sm:inline" id="sound-text">Chimes</span>
+      </button>
+
+      <button id="btn-stats" title="Ledger" class="btn-tactile-timber px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5">
+        <span>📜</span>
+        <span class="hidden sm:inline">Ledger</span>
+      </button>
+
+      <button id="btn-achievements" title="Conquests" class="btn-tactile-timber px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5">
+        <span>🏮</span>
+        <span class="hidden sm:inline">Badges</span>
+        <span id="achieve-count-badge" class="ml-0.5 px-1.5 py-0.2 bg-[#e59a24] text-[#1b1207] font-black text-[10px] rounded">0/24</span>
+      </button>
+
+      <button id="btn-prestige" title="Ascend" class="btn-tactile-matcha px-3.5 py-1.5 rounded-lg text-xs flex items-center gap-1.5">
+        <span>🔔</span>
+        <span class="hidden sm:inline font-bold">Ascend</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN PLAYGROUND -->
+  <main class="flex-1 w-full max-w-7xl mx-auto p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+    <!-- LEFT COLUMN: THE PETTING HEARTH -->
+    <section class="lg:col-span-5 flex flex-col items-center bg-[#201813] border-t border-[#31251e] border-b-2 border-[#120e0b] rounded-2xl p-5 shadow-2xl relative overflow-hidden">
+      
+      <!-- Warm hearth ambient glow -->
+      <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-80 h-80 bg-amber-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Purr Reservoir Board -->
+      <div class="w-full text-center mb-3 relative z-10">
+        <div class="text-[11px] uppercase font-black tracking-widest text-amber-400/90 mb-1 flex items-center justify-center gap-1.5">
+          <span>🐾</span>
+          <span>Purr Affinity Stored</span>
+          <span>🐾</span>
+        </div>
+        <div class="flex items-center justify-center gap-2">
+          <span class="text-4xl sm:text-5xl font-black font-title tracking-tight text-[#fbf5ee] drop-shadow-sm" id="purr-counter">0</span>
+        </div>
+        <div class="mt-1.5 flex items-center justify-center gap-2.5 text-xs text-[#d2bead]">
+          <span class="flex items-center gap-1 bg-[#2b211a] px-3 py-1 rounded-md border-t border-[#3d2e24] shadow-sm font-semibold text-[#66d3a2]">
+            <span>⚡</span> <span id="pps-counter">0.0</span> /sec
+          </span>
+          <span class="flex items-center gap-1 bg-[#2b211a] px-3 py-1 rounded-md border-t border-[#3d2e24] shadow-sm font-semibold text-amber-300">
+            <span>👆</span> <span id="click-power-counter">1</span> /scritch
+          </span>
+        </div>
+      </div>
+
+      <!-- Washi Paper Speech Scroll -->
+      <div class="relative w-full max-w-xs min-h-[58px] flex items-center justify-center my-2 z-10">
+        <div id="speech-bubble" class="washi-scroll px-4 py-2.5 text-xs sm:text-[13px] font-semibold text-center leading-relaxed">
+          <span id="speech-text">"Don't touch me, mortal! ...Unless it's right beneath the chin."</span>
+        </div>
+      </div>
+
+      <!-- PETTING TARGET AREA -->
+      <div class="relative w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center my-2" id="pet-area">
+        
+        <!-- Tatami / Coaster Mat beneath cup -->
+        <div class="absolute bottom-6 w-52 h-14 bg-[#2b221a] rounded-[50%] border-2 border-[#3d3025] shadow-2xl pointer-events-none transform rotateX(60deg) opacity-70"></div>
+
+        <!-- Ambient warmth pulse -->
+        <div id="pulse-ring" class="absolute inset-6 rounded-full border border-amber-500/20 pointer-events-none scale-90 transition-transform duration-300"></div>
+
+        <!-- The Animated Scarameow Sticker Container -->
+        <div id="cat-wrapper" class="pet-bounce animate-teacup relative flex items-center justify-center p-2 rounded-full focus:outline-none" tabindex="0" role="button" aria-label="Pet Scarameow">
+          <img id="scarameow-img" 
+               src="__IMAGE_BASE64__" 
+               alt="Scarameow Animated in Yellow Teacup" 
+               class="w-60 h-60 sm:w-72 sm:h-72 object-contain pointer-events-none select-none drop-shadow-[0_12px_20px_rgba(0,0,0,0.6)]" 
+               draggable="false" />
+        </div>
+
+        <!-- Particle Layer -->
+        <div id="particle-container" class="absolute inset-0 pointer-events-none overflow-visible"></div>
+      </div>
+
+      <!-- TACTILE BIG SCRITCH BUTTON (For effortless clicking) -->
+      <div class="w-full max-w-xs mt-1 mb-3">
+        <button id="btn-big-scritch" class="btn-tactile-amber w-full py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 font-black tracking-wide">
+          <span>🐾</span>
+          <span>GIVE SCRITCH</span>
+          <span>🐾</span>
+        </button>
+      </div>
+
+      <!-- BAMBOO KETTLE / ZOOMIES CADENCE -->
+      <div class="w-full max-w-sm bg-[#1b140f] p-3 rounded-xl border-t border-[#2d221a] border-b border-[#0f0b08] shadow-inner">
+        <div class="flex justify-between items-center text-xs mb-1.5">
+          <span class="font-bold flex items-center gap-1.5 text-amber-300">
+            <span>🍵</span> Tea Steam Cadence / Zoomies
+          </span>
+          <span id="zoomies-status" class="text-[11px] text-[#9c897a] font-mono">Calm & Disdainful</span>
+        </div>
+        <div class="w-full h-3 bg-[#110d0a] rounded-full overflow-hidden p-0.5 border border-[#2b2017]">
+          <div id="zoomies-bar" class="h-full bg-gradient-to-r from-amber-600 via-amber-400 to-[#e59a24] rounded-full transition-all duration-100" style="width: 0%;"></div>
+        </div>
+        <div class="text-[10px] text-[#8f7e71] mt-1.5 flex justify-between">
+          <span>Rapid scritches boil the kettle!</span>
+          <span id="frenzy-timer" class="text-amber-400 font-bold hidden">ZOOMIES ACTIVE (3x)! <span id="frenzy-secs">8</span>s</span>
+        </div>
+      </div>
+
+      <!-- Affection / Demeanor Status -->
+      <div class="w-full mt-3 pt-3 border-t border-[#2e231b] flex items-center justify-between text-xs text-[#a99788] px-1">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl" id="mood-emoji">😾</span>
+          <div>
+            <div class="font-bold text-[#ede1d4]" id="mood-title">Tsundere Teacup Inhabitant</div>
+            <div class="text-[11px] text-[#978577]" id="mood-desc">Pretends to loathe your attention.</div>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="font-mono text-amber-400 font-bold" id="total-pets-count">0 scritches</div>
+          <div class="text-[10px] text-[#7a6a5e]">lifetime devotion</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT/CENTER COLUMNS: SCRITCH TECHNIQUES & CARETAKERS -->
+    <section class="lg:col-span-7 flex flex-col gap-4">
+
+      <!-- SCRITCH TECHNIQUES / UPGRADES (Tea Tags) -->
+      <div class="bg-[#201813] border-t border-[#31251e] border-b-2 border-[#120e0b] rounded-2xl p-4 shadow-xl">
+        <div class="flex items-center justify-between mb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-amber-400">✨</span>
+            <h2 class="font-title font-bold text-[#ede1d4] text-sm sm:text-base">Scritch Mastery & Tea Seals</h2>
+          </div>
+          <span class="text-xs text-[#9c897a] font-medium" id="upgrades-unlocked-count">0 mastered</span>
+        </div>
+        
+        <!-- Tea Tag horizontal rack -->
+        <div id="upgrades-grid" class="flex flex-wrap gap-2.5 min-h-[56px] p-2 bg-[#17110c] rounded-xl border-t border-[#2b2017] items-center">
+          <!-- Dynamically populated tea tags -->
+        </div>
+      </div>
+
+      <!-- CARETAKERS & COMFORTS SHOP (Wooden Slats) -->
+      <div class="bg-[#201813] border-t border-[#31251e] border-b-2 border-[#120e0b] rounded-2xl p-4 sm:p-5 shadow-xl flex-1 flex flex-col">
+        
+        <div class="flex items-center justify-between mb-3 border-b border-[#2d221a] pb-3">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl">🏡</span>
+            <div>
+              <h2 class="font-title font-bold text-[#ede1d4] text-base sm:text-lg">Teahouse Caretakers & Apparatuses</h2>
+              <p class="text-xs text-[#9c897a]">Recruit automated comforts to gather passive purrs</p>
+            </div>
+          </div>
+
+          <!-- Purchase Quantity Switcher -->
+          <div class="flex items-center bg-[#17110c] p-1 rounded-lg border border-[#2d221a] text-xs">
+            <button class="buy-mult-btn px-2.5 py-1 rounded font-bold text-amber-400 bg-[#2d2219] transition" data-mult="1">1x</button>
+            <button class="buy-mult-btn px-2.5 py-1 rounded font-bold text-[#8f7e71] hover:text-white transition" data-mult="10">10x</button>
+            <button class="buy-mult-btn px-2.5 py-1 rounded font-bold text-[#8f7e71] hover:text-white transition" data-mult="100">100x</button>
+          </div>
+        </div>
+
+        <!-- Buildings wooden slats list -->
+        <div id="buildings-list" class="flex flex-col gap-2.5 max-h-[520px] overflow-y-auto pr-1">
+          <!-- Dynamically populated wooden slats -->
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- BOTTOM FOOTER -->
+  <footer class="w-full bg-[#18120d] border-t border-[#281e16] px-4 py-2.5 text-xs text-[#8f7e71] flex flex-wrap items-center justify-between gap-3 z-30">
+    <div class="flex items-center gap-4">
+      <span>Auto-saved to your browser.</span>
+      <button id="btn-save-manual" class="text-amber-400 hover:underline flex items-center gap-1 font-semibold">
+        <span>💾</span> Save
+      </button>
+      <button id="btn-export-save" class="text-[#cfbeaf] hover:underline flex items-center gap-1 font-semibold">
+        <span>📤</span> Export/Import
+      </button>
+      <button id="btn-wipe-save" class="text-rose-400/80 hover:text-rose-300 hover:underline flex items-center gap-1 font-semibold">
+        <span>⚠️</span> Reset Progress
+      </button>
+    </div>
+    <div class="text-[#716154] flex items-center gap-2">
+      <span>Handcrafted for Genshin fans</span>
+      <span>•</span>
+      <span class="text-amber-400/90 font-medium">Warm tea, softer scritches</span>
+    </div>
+  </footer>
+
+  <!-- FLOATING GOLDEN ANEMO FEATHER -->
+  <div id="golden-cookie" class="feather-glide fixed z-50 hidden cursor-pointer select-none text-4xl sm:text-5xl" style="top: 25%; left: 15%;">
+    🪶
+  </div>
+
+  <!-- MODAL: STATS -->
+  <div id="modal-stats" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-[#221a14] border-t border-[#3d2e23] border-b-2 border-[#120e0a] rounded-2xl w-full max-w-lg p-5 shadow-2xl relative">
+      <button class="modal-close absolute top-4 right-4 text-[#8f7e71] hover:text-white text-xl font-bold">✕</button>
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-2xl">📜</span>
+        <h3 class="font-title text-xl font-bold text-[#f5ebe1]">Teahouse Ledger & Statistics</h3>
+      </div>
+      <div class="space-y-2 text-xs sm:text-sm text-[#d4c3b5] max-h-96 overflow-y-auto pr-1">
+        <div class="flex justify-between py-2 border-b border-[#2e231b]">
+          <span class="text-[#998779]">Current Purrs in Bank:</span>
+          <span class="font-bold text-amber-300 font-mono" id="stat-current-purrs">0</span>
+        </div>
+        <div class="flex justify-between py-2 border-b border-[#2e231b]">
+          <span class="text-[#998779]">All-Time Purrs Accumulated:</span>
+          <span class="font-bold text-amber-300 font-mono" id="stat-alltime-purrs">0</span>
+        </div>
+        <div class="flex justify-between py-2 border-b border-[#2e231b]">
+          <span class="text-[#998779]">Total Scritches Given:</span>
+          <span class="font-bold text-[#f5ebe1] font-mono" id="stat-clicks">0</span>
+        </div>
+        <div class="flex justify-between py-2 border-b border-[#2e231b]">
+          <span class="text-[#998779]">Purrs from Manual Petting:</span>
+          <span class="font-bold text-amber-300 font-mono" id="stat-pet-purrs">0</span>
+        </div>
+        <div class="flex justify-between py-2 border-b border-[#2e231b]">
+          <span class="text-[#998779]">Purrs Per Second (Passive):</span>
+          <span class="font-bold text-[#66d3a2] font-mono" id="stat-pps">0</span>
+        </div>
+        <div class="flex justify-between py-2 border-b border-[#2e231b]">
+          <span class="text-[#998779]">Golden Feathers Captured:</span>
+          <span class="font-bold text-amber-400 font-mono" id="stat-golden-caught">0</span>
+        </div>
+        <div class="flex justify-between py-2 border-b border-[#2e231b]">
+          <span class="text-[#998779]">Starlight Ascension Bells:</span>
+          <span class="font-bold text-amber-300 font-mono" id="stat-ascension-bells">0 (+0%)</span>
+        </div>
+        <div class="flex justify-between py-2 border-b border-[#2e231b]">
+          <span class="text-[#998779]">Time Spent Pampering:</span>
+          <span class="font-bold text-[#d4c3b5] font-mono" id="stat-time-played">0s</span>
+        </div>
+      </div>
+      <div class="mt-5 flex justify-end">
+        <button class="modal-close btn-tactile-timber px-4 py-2 rounded-xl text-xs font-bold">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ACHIEVEMENTS -->
+  <div id="modal-achievements" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-[#221a14] border-t border-[#3d2e23] border-b-2 border-[#120e0a] rounded-2xl w-full max-w-2xl p-5 shadow-2xl relative">
+      <button class="modal-close absolute top-4 right-4 text-[#8f7e71] hover:text-white text-xl font-bold">✕</button>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-2xl">🏮</span>
+        <h3 class="font-title text-xl font-bold text-[#f5ebe1]">Hall of Feline Conquests</h3>
+      </div>
+      <p class="text-xs text-[#9c897a] mb-4">Milestones accomplished in the service of the teacup sovereign.</p>
+      
+      <div id="achievements-gallery" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[420px] overflow-y-auto pr-1">
+        <!-- Dynamically rendered achievements -->
+      </div>
+
+      <div class="mt-4 flex justify-between items-center pt-3 border-t border-[#2e231b]">
+        <span class="text-xs text-[#9c897a]" id="achievements-total-progress">0 of 24 Unlocked (0%)</span>
+        <button class="modal-close btn-tactile-timber px-4 py-2 rounded-xl text-xs font-bold">Return to Tea</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PRESTIGE / ASCENSION -->
+  <div id="modal-prestige" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-[#231b14] border-t border-[#443326] border-b-2 border-[#120e0a] rounded-2xl w-full max-w-md p-6 shadow-2xl relative text-center">
+      <button class="modal-close absolute top-4 right-4 text-[#8f7e71] hover:text-white text-xl font-bold">✕</button>
+      <div class="w-16 h-16 rounded-full bg-[#31251c] border-2 border-amber-500/40 mx-auto mb-3 flex items-center justify-center text-3xl shadow-inner">
+        🔔
+      </div>
+      <h3 class="font-title text-2xl font-bold text-[#f5ebe1] mb-1">Ascend into Wanderer Mode</h3>
+      <p class="text-xs text-[#bda899] mb-4 leading-relaxed">
+        Sacrifice your current purrs, caretakers, and upgrades to forge sacred <span class="text-amber-400 font-bold">Starlight Bells</span>!
+        Each bell permanently multiplies all future purr gains by <span class="text-[#66d3a2] font-bold">+10%</span>.
+      </p>
+
+      <div class="bg-[#18120d] border border-[#2e2319] rounded-xl p-3.5 mb-4 text-left text-xs space-y-2">
+        <div class="flex justify-between">
+          <span class="text-[#9c897a]">Current Bells Held:</span>
+          <span class="font-bold text-amber-400 font-mono" id="prestige-current-bells">0 (+0%)</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-[#9c897a]">Bells Forged on Reset:</span>
+          <span class="font-bold text-[#66d3a2] font-mono" id="prestige-pending-bells">+0 Bells</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-[#9c897a]">Purrs Needed for Next Bell:</span>
+          <span class="font-bold text-[#d4c3b5] font-mono" id="prestige-next-cost">1,000,000</span>
+        </div>
+      </div>
+
+      <div class="flex gap-2.5 justify-center">
+        <button class="modal-close btn-tactile-timber px-4 py-2.5 rounded-xl text-xs font-bold">Stay in Teahouse</button>
+        <button id="btn-confirm-ascend" class="btn-tactile-amber px-5 py-2.5 rounded-xl text-xs font-black shadow-lg disabled:opacity-40 disabled:cursor-not-allowed">
+          Ascend Now!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SAVE MANAGEMENT -->
+  <div id="modal-save" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-[#221a14] border-t border-[#3d2e23] border-b-2 border-[#120e0a] rounded-2xl w-full max-w-lg p-5 shadow-2xl relative">
+      <button class="modal-close absolute top-4 right-4 text-[#8f7e71] hover:text-white text-xl font-bold">✕</button>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-2xl">💾</span>
+        <h3 class="font-title text-xl font-bold text-[#f5ebe1]">Save Management</h3>
+      </div>
+      <p class="text-xs text-[#9c897a] mb-3">Copy your save code to backup your progress, or paste one below to load.</p>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-[#bda899] mb-1">Save Code:</label>
+          <textarea id="save-data-textarea" class="w-full h-28 bg-[#16100c] border border-[#31251b] rounded-xl p-2.5 font-mono text-xs text-amber-300 focus:outline-none focus:border-amber-500" spellcheck="false"></textarea>
+        </div>
+        <div class="flex flex-wrap gap-2 justify-between">
+          <button id="btn-copy-save" class="btn-tactile-timber px-4 py-2 rounded-lg text-xs font-bold">
+            📋 Copy to Clipboard
+          </button>
+          <button id="btn-import-save" class="btn-tactile-amber px-4 py-2 rounded-lg text-xs font-black">
+            📥 Import Save Code
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-sm"></div>
+
+  <!-- GAME SCRIPT LOGIC -->
+  <script>
+    /* =======================================================================
+       1. PROCEDURAL SOUND ENGINE (Warm chimes & wooden clacks)
+       ======================================================================= */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+        this.volume = 0.28;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playPet() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          // Warm harmonic kitten chirp
+          const baseFreq = 520 + Math.random() * 60;
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(baseFreq, now);
+          osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.38, now + 0.05);
+          osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.95, now + 0.15);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(this.volume * 0.45, now + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.17);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.18);
+        } catch(e) {}
+      }
+
+      playCrit() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        try {
+          const now = this.ctx.currentTime;
+          [523.25, 783.99, 1046.50].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.04);
+            gain.gain.setValueAtTime(0.001, now + idx * 0.04);
+            gain.gain.linearRampToValueAtTime(this.volume * 0.35, now + idx * 0.04 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.04 + 0.22);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.04);
+            osc.stop(now + idx * 0.04 + 0.25);
+          });
+        } catch(e) {}
+      }
+
+      playBuy() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        try {
+          const now = this.ctx.currentTime;
+          // Wooden clack / coin chime
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(659.25, now);
+          osc.frequency.setValueAtTime(880.00, now + 0.07);
+
+          gain.gain.setValueAtTime(this.volume * 0.28, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.22);
+        } catch(e) {}
+      }
+
+      playGolden() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        try {
+          const now = this.ctx.currentTime;
+          // Pentatonic warm wind chime
+          [440, 523.25, 659.25, 783.99, 987.77].forEach((f, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + i * 0.05);
+            gain.gain.setValueAtTime(this.volume * 0.35, now + i * 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.05 + 0.35);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + i * 0.05);
+            osc.stop(now + i * 0.05 + 0.4);
+          });
+        } catch(e) {}
+      }
+
+      playAchievement() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        try {
+          const now = this.ctx.currentTime;
+          [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(f, now + i * 0.07);
+            gain.gain.setValueAtTime(this.volume * 0.4, now + i * 0.07);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.45);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + i * 0.07);
+            osc.stop(now + i * 0.07 + 0.5);
+          });
+        } catch(e) {}
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    /* =======================================================================
+       2. TSUNDERE DIALOGUE & NEWS
+       ======================================================================= */
+    const SCARAMEOW_QUOTES = [
+      "Hmph! Who gave you permission to touch my royal fur?!",
+      "D-don't look at me like that, mortal!",
+      "That spot behind my left ear... don't you dare stop.",
+      "Purr... wait! Silence! Forget you heard that acoustic malfunction!",
+      "I am the God of... wait, is that a floating silver feather?!",
+      "A cat? Me?! Ridiculous. Now scratch beneath my chin.",
+      "Mwehehe... wait, did a meow just slip out?! Preposterous!",
+      "You insolent mortal! ...More scritches on the forehead, please.",
+      "My heart was carved from puppet wood, yet... this feels acceptable.",
+      "Bow before the Meow-shogun! Or bring me more dried fish.",
+      "If you touch my toe beans again, you shall face divine retribution!",
+      "I didn't ask to sit in this oversized tea mug, but it is warm.",
+      "One more pet and I'll... I'll allow one additional pet, that's all!",
+      "You think you've tamed me? I'm simply using you for grooming labor.",
+      "H-hey! The paws are strictly off-limits! (Unless you are gentle...)",
+      "Look into my purple eyes! Feel the terror! ...Now scritch!"
+    ];
+
+    const NEWS_HEADLINES = [
+      "Nahida spotted taking 4,000 commemorative photos of teacup Scarameow.",
+      "Local traveler accused of abandoning daily commissions to pet cat for 6 consecutive hours.",
+      "Fatui Harbingers reportedly baffled by Sixth Harbinger's sudden feline cup transformation.",
+      "Dottore attempts to engineer artificial electro-catnip; immediately shredded by angry kitten claws.",
+      "Bongo Head and Poko Poko Bini express jealousy over Scarameow's newfound viral fame.",
+      "Wanderer insists: 'I did NOT purr. That was a high-frequency acoustic shockwave of sheer hatred.'",
+      "Local teacup artisans report a 500% surge in demand for extra-large yellow ceramic mugs.",
+      "Kazuha spotted composing an impromptu haiku regarding soft pink toe beans.",
+      "Raiden Shogun attempts to cook cat treats; Inazuma City experiences nationwide power blackout.",
+      "Paimon tries to eat Scarameow's catnip treats; gets swiped across the cheek.",
+      "Akademiya scholars classify the phenomenon of 'aggressive purring' as a new elemental reaction."
+    ];
+
+    /* =======================================================================
+       3. BUILDINGS, UPGRADES & ACHIEVEMENTS
+       ======================================================================= */
+    const BUILDINGS = [
+      {
+        id: 'box',
+        name: 'Cardboard Box of Solitude',
+        icon: '📦',
+        desc: 'A simple haven. Even former Harbingers cannot resist an enclosed cardboard space.',
+        baseCost: 15,
+        basePps: 0.5
+      },
+      {
+        id: 'fish',
+        name: 'Dried Fish Nibbles',
+        icon: '🐟',
+        desc: 'Sun-dried Inazuman treats. Highly effective in lowering his defensive guard.',
+        baseCost: 100,
+        basePps: 4
+      },
+      {
+        id: 'naku',
+        name: 'Naku Weed Catnip Sachet',
+        icon: '🌿',
+        desc: 'Mildly infused with Electro energy. Makes his tail swish erratically.',
+        baseCost: 1100,
+        basePps: 16
+      },
+      {
+        id: 'coaster',
+        name: 'Teacup Ceramic Heated Pad',
+        icon: '☕',
+        desc: 'Keeps his yellow teacup cozy at a steady 38°C. Promotes involuntary loafing.',
+        baseCost: 12000,
+        basePps: 64
+      },
+      {
+        id: 'feather_wand',
+        name: 'Silver Feather Dangly Wand',
+        icon: '🪶',
+        desc: 'Dangled gently overhead. Reminds him of his past, but mostly it is fun to bat.',
+        baseCost: 130000,
+        basePps: 260
+      },
+      {
+        id: 'mini_hat',
+        name: 'Miniature Kasa Hat with Veils',
+        icon: '👒',
+        desc: 'Restores his signature Wanderer silhouette. Amplifies his haughty aura.',
+        baseCost: 1400000,
+        basePps: 1400
+      },
+      {
+        id: 'anemo_fan',
+        name: 'Anemo Updraft Floating Cushion',
+        icon: '🍃',
+        desc: 'Suspends the teacup in mid-air so he can look down upon all earthly creatures.',
+        baseCost: 20000000,
+        basePps: 7800
+      },
+      {
+        id: 'gnosis_laser',
+        name: 'Gnosis Resonant Laser Pointer',
+        icon: '🔦',
+        desc: 'Projects a glowing divine dot across the floor that must be pounced at all costs.',
+        baseCost: 330000000,
+        basePps: 44000
+      },
+      {
+        id: 'mech_paws',
+        name: 'Shouki no Meow (Cat Mech)',
+        icon: '🤖',
+        desc: 'A giant automated puppet suit equipped with 6 padded paws to pamper him continuously.',
+        baseCost: 5100000000,
+        basePps: 260000
+      },
+      {
+        id: 'irminsul_tree',
+        name: 'Irminsul Memory Scratch Post',
+        icon: '🌳',
+        desc: 'Rewrites world history so all beings are born solely to give him chin scritches.',
+        baseCost: 75000000000,
+        basePps: 1600000
+      },
+      {
+        id: 'celestial_throne',
+        name: 'Celestial Teacup Cat Galaxy',
+        icon: '🌌',
+        desc: 'Ascends into a cosmic feline deity resting upon a constellation of warm teacups.',
+        baseCost: 1000000000000,
+        basePps: 10000000
+      }
+    ];
+
+    const UPGRADES = [
+      {
+        id: 'soft_fingers',
+        name: 'Velvet Fingertips',
+        icon: '🧤',
+        cost: 100,
+        desc: 'Gentle petting technique. +1 Base Purr per pet.',
+        effect: (state) => { state.clickFlatBonus += 1; }
+      },
+      {
+        id: 'chin_focus',
+        name: 'Chin Scritch Precision',
+        icon: '🎯',
+        cost: 600,
+        desc: 'Targeting his sweet spot. Clicking gains +2% of current PPS.',
+        effect: (state) => { state.clickPpsPercent += 0.02; }
+      },
+      {
+        id: 'ear_technique',
+        name: 'Behind-The-Ear Massage',
+        icon: '👂',
+        cost: 3000,
+        desc: 'He melts into the cup. Doubles click petting power (2x).',
+        effect: (state) => { state.clickMultiplier *= 2; }
+      },
+      {
+        id: 'box_tape',
+        name: 'Reinforced Corrugated Box',
+        icon: '📦',
+        cost: 1200,
+        desc: 'Boxes are 2x more effective.',
+        buildingId: 'box',
+        effect: (state) => { state.buildingMults['box'] = (state.buildingMults['box'] || 1) * 2; }
+      },
+      {
+        id: 'belly_gamble',
+        name: 'Forbidden Belly Rub Gamble',
+        icon: '🎲',
+        cost: 15000,
+        desc: 'Risky maneuver! 10% chance per pet to trigger a 7x Critical Purr burst.',
+        effect: (state) => { state.critChance += 0.10; state.critMultiplier = 7; }
+      },
+      {
+        id: 'fresh_salmon',
+        name: 'Prime Inazuman Sashimi',
+        icon: '🍣',
+        cost: 10000,
+        desc: 'Fish Nibbles are 2x more effective.',
+        buildingId: 'fish',
+        effect: (state) => { state.buildingMults['fish'] = (state.buildingMults['fish'] || 1) * 2; }
+      },
+      {
+        id: 'organic_naku',
+        name: 'Purified Naku Weed Infusion',
+        icon: '🔮',
+        cost: 120000,
+        desc: 'Catnip Sachets are 2x more effective.',
+        buildingId: 'naku',
+        effect: (state) => { state.buildingMults['naku'] = (state.buildingMults['naku'] || 1) * 2; }
+      },
+      {
+        id: 'cup_gold_leaf',
+        name: '24K Gold Leaf Teacup Trim',
+        icon: '✨',
+        cost: 1500000,
+        desc: 'Heated Ceramic Pads are 2x more effective.',
+        buildingId: 'coaster',
+        effect: (state) => { state.buildingMults['coaster'] = (state.buildingMults['coaster'] || 1) * 2; }
+      },
+      {
+        id: 'feather_glide',
+        name: 'Aerodynamic Wand Tassels',
+        icon: '🪽',
+        cost: 16000000,
+        desc: 'Feather Wands are 2x more effective.',
+        buildingId: 'feather_wand',
+        effect: (state) => { state.buildingMults['feather_wand'] = (state.buildingMults['feather_wand'] || 1) * 2; }
+      },
+      {
+        id: 'wind_whisper',
+        name: 'Wanderer Wind Resonance',
+        icon: '🍃',
+        cost: 50000000,
+        desc: 'The wind aids your touch. Clicking gains an additional +3% of PPS.',
+        effect: (state) => { state.clickPpsPercent += 0.03; }
+      },
+      {
+        id: 'bell_chimes',
+        name: 'Golden Wind Chime Hat Bells',
+        icon: '🔔',
+        cost: 180000000,
+        desc: 'Miniature Kasa Hats are 2x more effective.',
+        buildingId: 'mini_hat',
+        effect: (state) => { state.buildingMults['mini_hat'] = (state.buildingMults['mini_hat'] || 1) * 2; }
+      },
+      {
+        id: 'divine_scritch',
+        name: 'Puppet Master Touch',
+        icon: '👑',
+        cost: 1000000000,
+        desc: 'Doubles click petting power (2x) and boosts all passive production by 15%.',
+        effect: (state) => { 
+          state.clickMultiplier *= 2; 
+          state.globalMultiplier *= 1.15;
+        }
+      },
+      {
+        id: 'laser_optics',
+        name: 'Hyper-Charged Laser Lens',
+        icon: '⚡',
+        cost: 40000000000,
+        desc: 'Gnosis Laser Pointers are 2x more effective.',
+        buildingId: 'gnosis_laser',
+        effect: (state) => { state.buildingMults['gnosis_laser'] = (state.buildingMults['gnosis_laser'] || 1) * 2; }
+      },
+      {
+        id: 'feline_nirvana',
+        name: 'Universal Catnip Enlightenment',
+        icon: '🌌',
+        cost: 500000000000,
+        desc: 'Scarameow accepts his destiny. All purr production doubled (2x)!',
+        effect: (state) => { state.globalMultiplier *= 2; }
+      }
+    ];
+
+    const ACHIEVEMENTS = [
+      { id: 'first_pet', name: 'First Contact', icon: '🐾', desc: 'Pet Scarameow for the very first time.', check: (s) => s.totalClicks >= 1 },
+      { id: 'pets_50', name: 'Scritch Novice', icon: '🖐️', desc: 'Pet Scarameow 50 times.', check: (s) => s.totalClicks >= 50 },
+      { id: 'pets_250', name: 'Toe Bean Fanatic', icon: '🫘', desc: 'Pet Scarameow 250 times.', check: (s) => s.totalClicks >= 250 },
+      { id: 'pets_1000', name: 'Master Groomer', icon: '🌟', desc: 'Pet Scarameow 1,000 times.', check: (s) => s.totalClicks >= 1000 },
+      { id: 'purrs_100', name: 'Gentle Rumble', icon: '🐱', desc: 'Accumulate 100 total purrs.', check: (s) => s.allTimePurrs >= 100 },
+      { id: 'purrs_10k', name: 'Purr Resonator', icon: '🔊', desc: 'Accumulate 10,000 total purrs.', check: (s) => s.allTimePurrs >= 10000 },
+      { id: 'purrs_1m', name: 'Balladeer of Cuddles', icon: '💖', desc: 'Accumulate 1,000,000 total purrs.', check: (s) => s.allTimePurrs >= 1000000 },
+      { id: 'purrs_100m', name: 'Sovereign of the Mug', icon: '👑', desc: 'Accumulate 100,000,000 total purrs.', check: (s) => s.allTimePurrs >= 100000000 },
+      { id: 'purrs_1b', name: 'Divine Cat Ascendant', icon: '🌌', desc: 'Accumulate 1,000,000,000 total purrs.', check: (s) => s.allTimePurrs >= 1000000000 },
+      { id: 'pps_10', name: 'Steady Warmth', icon: '☕', desc: 'Reach 10 Purrs Per Second.', check: (s) => s.pps >= 10 },
+      { id: 'pps_1k', name: 'Purr Turbine', icon: '⚡', desc: 'Reach 1,000 Purrs Per Second.', check: (s) => s.pps >= 1000 },
+      { id: 'pps_100k', name: 'Feline Resonance', icon: '🌀', desc: 'Reach 100,000 Purrs Per Second.', check: (s) => s.pps >= 100000 },
+      { id: 'has_box', name: 'If It Fits, I Sits', icon: '📦', desc: 'Purchase your first Cardboard Box.', check: (s) => (s.buildings['box'] || 0) >= 1 },
+      { id: 'has_hat', name: 'The Brim Returns', icon: '👒', desc: 'Equip Scarameow with the Mini Kasa Hat.', check: (s) => (s.buildings['mini_hat'] || 0) >= 1 },
+      { id: 'has_mech', name: 'Shouki No Meow', icon: '🤖', desc: 'Deploy the giant automated petting mech.', check: (s) => (s.buildings['mech_paws'] || 0) >= 1 },
+      { id: 'has_tree', name: 'Rewriting Irminsul', icon: '🌳', desc: 'Purchase the Irminsul Scratch Post.', check: (s) => (s.buildings['irminsul_tree'] || 0) >= 1 },
+      { id: 'first_golden', name: 'Anemo Miracle', icon: '🪶', desc: 'Catch a floating Golden Anemo Feather.', check: (s) => s.goldenFeathersCaught >= 1 },
+      { id: 'golden_10', name: 'Feather Collector', icon: '✨', desc: 'Catch 10 Golden Anemo Feathers.', check: (s) => s.goldenFeathersCaught >= 10 },
+      { id: 'zoomies_activated', name: 'Sudden Zoomies', icon: '🔥', desc: 'Fill the Petting Cadence meter to trigger Zoomies Mode.', check: (s) => s.zoomiesTriggered >= 1 },
+      { id: 'belly_crit', name: 'Sweet Spot!', icon: '💥', desc: 'Trigger a Critical Scritch on Scarameow.', check: (s) => s.critTriggered >= 1 },
+      { id: 'upgrades_5', name: 'Technique Student', icon: '📜', desc: 'Unlock 5 scritch upgrades.', check: (s) => s.upgrades.length >= 5 },
+      { id: 'upgrades_all', name: 'Cat Whispering Master', icon: '🎓', desc: 'Unlock 10 or more scritch upgrades.', check: (s) => s.upgrades.length >= 10 },
+      { id: 'first_ascension', name: 'Reincarnation of the Cat', icon: '🔔', desc: 'Ascend for the first time and earn Starlight Bells.', check: (s) => s.ascensions >= 1 },
+      { id: 'speed_paws', name: 'Swift Paws of Inazuma', icon: '💨', desc: 'Pet Scarameow at least 8 times in under 1 second.', check: (s) => s.maxCadence >= 8 }
+    ];
+
+    /* =======================================================================
+       4. GAME STATE
+       ======================================================================= */
+    class Game {
+      constructor() {
+        this.purrs = 0;
+        this.allTimePurrs = 0;
+        this.totalClicks = 0;
+        this.manualPurrsEarned = 0;
+        this.goldenFeathersCaught = 0;
+        this.zoomiesTriggered = 0;
+        this.critTriggered = 0;
+        this.maxCadence = 0;
+        this.timePlayedSecs = 0;
+        
+        this.ascensions = 0;
+        this.starlightBells = 0;
+
+        this.pps = 0;
+        this.clickBase = 1;
+        this.clickFlatBonus = 0;
+        this.clickMultiplier = 1;
+        this.clickPpsPercent = 0;
+        this.critChance = 0;
+        this.critMultiplier = 1;
+        this.globalMultiplier = 1;
+
+        this.buildings = {};
+        this.buildingMults = {};
+        this.upgrades = [];
+        this.unlockedAchievements = [];
+
+        this.buyMultiplier = 1;
+
+        this.recentClicks = [];
+        this.zoomiesMeter = 0;
+        this.isZoomiesActive = false;
+        this.zoomiesTimer = 0;
+
+        this.buffMultiplier = 1;
+        this.buffTimer = 0;
+        this.buffName = '';
+
+        this.quoteCooldown = 0;
+        this.newsIndex = 0;
+        this.goldenTimer = 60 + Math.random() * 40;
+
+        this.init();
+      }
+
+      init() {
+        this.loadSave();
+        this.recalcStats();
+        this.setupAudioListeners();
+        this.setupEvents();
+        this.renderAll();
+
+        setInterval(() => this.tick(0.05), 50);
+        setInterval(() => this.save(), 5000);
+        setInterval(() => this.rotateNews(), 9000);
+      }
+
+      setupAudioListeners() {
+        const unlock = () => {
+          sound.init();
+          window.removeEventListener('click', unlock);
+          window.removeEventListener('keydown', unlock);
+        };
+        window.addEventListener('click', unlock);
+        window.addEventListener('keydown', unlock);
+      }
+
+      recalcStats() {
+        this.clickFlatBonus = 0;
+        this.clickMultiplier = 1;
+        this.clickPpsPercent = 0;
+        this.critChance = 0;
+        this.critMultiplier = 1;
+        this.globalMultiplier = 1 + (this.starlightBells * 0.10);
+        this.buildingMults = {};
+
+        for (const upId of this.upgrades) {
+          const def = UPGRADES.find(u => u.id === upId);
+          if (def && def.effect) def.effect(this);
+        }
+
+        let rawPps = 0;
+        for (const b of BUILDINGS) {
+          const count = this.buildings[b.id] || 0;
+          const bMult = this.buildingMults[b.id] || 1;
+          rawPps += count * b.basePps * bMult;
+        }
+
+        let activeMultiplier = this.globalMultiplier;
+        if (this.buffMultiplier > 1) {
+          activeMultiplier *= this.buffMultiplier;
+        }
+
+        this.pps = rawPps * activeMultiplier;
+
+        let basePet = (this.clickBase + this.clickFlatBonus) * this.clickMultiplier;
+        if (this.clickPpsPercent > 0) {
+          basePet += (this.pps * this.clickPpsPercent);
+        }
+        if (this.isZoomiesActive) {
+          basePet *= 3;
+        }
+        if (this.buffName === 'Scritch Overdrive!') {
+          basePet *= 77;
+        }
+
+        this.currentClickPower = Math.max(1, basePet * activeMultiplier);
+      }
+
+      getBuildingCost(bDef, amount = 1) {
+        const currentCount = this.buildings[bDef.id] || 0;
+        let total = 0;
+        for (let i = 0; i < amount; i++) {
+          total += Math.floor(bDef.baseCost * Math.pow(1.15, currentCount + i));
+        }
+        return total;
+      }
+
+      buyBuilding(bDef) {
+        const cost = this.getBuildingCost(bDef, this.buyMultiplier);
+        if (this.purrs >= cost) {
+          this.purrs -= cost;
+          this.buildings[bDef.id] = (this.buildings[bDef.id] || 0) + this.buyMultiplier;
+          sound.playBuy();
+          this.recalcStats();
+          this.checkAchievements();
+          this.renderCounters();
+          this.renderBuildings();
+          this.renderUpgrades();
+        }
+      }
+
+      buyUpgrade(upDef) {
+        if (this.purrs >= upDef.cost && !this.upgrades.includes(upDef.id)) {
+          this.purrs -= upDef.cost;
+          this.upgrades.push(upDef.id);
+          sound.playBuy();
+          this.recalcStats();
+          this.checkAchievements();
+          this.renderAll();
+          this.showToast(`✨ Technique Mastered: ${upDef.name}`, 'bg-[#2f2219] border-t border-amber-500');
+        }
+      }
+
+      pet(e) {
+        sound.init();
+        const now = Date.now();
+        this.recentClicks.push(now);
+        this.recentClicks = this.recentClicks.filter(t => now - t <= 1000);
+        const cadence = this.recentClicks.length;
+        if (cadence > this.maxCadence) this.maxCadence = cadence;
+
+        if (!this.isZoomiesActive) {
+          this.zoomiesMeter = Math.min(100, this.zoomiesMeter + 4.5);
+          if (this.zoomiesMeter >= 100) {
+            this.triggerZoomies();
+          }
+        }
+
+        let isCrit = false;
+        let finalGain = this.currentClickPower;
+        if (this.critChance > 0 && Math.random() < this.critChance) {
+          isCrit = true;
+          finalGain *= this.critMultiplier;
+          this.critTriggered++;
+          sound.playCrit();
+        } else {
+          sound.playPet();
+        }
+
+        this.purrs += finalGain;
+        this.allTimePurrs += finalGain;
+        this.manualPurrsEarned += finalGain;
+        this.totalClicks += 1;
+
+        const wrapper = document.getElementById('cat-wrapper');
+        wrapper.classList.remove('animate-teacup');
+        wrapper.classList.add('pet-squish');
+        setTimeout(() => {
+          wrapper.classList.remove('pet-squish');
+          wrapper.classList.add('animate-teacup');
+        }, 90);
+
+        this.spawnFloatingPetEffect(e, finalGain, isCrit);
+
+        if (Math.random() < 0.12 && now - this.quoteCooldown > 2200) {
+          this.quoteCooldown = now;
+          this.triggerRandomDialogue();
+        }
+
+        this.checkAchievements();
+        this.renderCounters();
+      }
+
+      triggerZoomies() {
+        this.isZoomiesActive = true;
+        this.zoomiesTimer = 8.0;
+        this.zoomiesTriggered++;
+        sound.playGolden();
+        this.recalcStats();
+        this.showToast("🍵 KETTLE BOILING! Zoomies Active (3x)!", "bg-[#38261b] border-t border-amber-400");
+      }
+
+      spawnFloatingPetEffect(e, amount, isCrit) {
+        const container = document.getElementById('particle-container');
+        const petArea = document.getElementById('pet-area');
+        const rect = petArea.getBoundingClientRect();
+
+        let clientX = rect.left + rect.width / 2;
+        let clientY = rect.top + rect.height / 2;
+
+        if (e && e.clientX) {
+          clientX = e.clientX;
+          clientY = e.clientY;
+        }
+
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
+
+        const el = document.createElement('div');
+        el.className = `scritch-float-num text-sm sm:text-base font-title ${isCrit ? 'text-amber-300 text-lg sm:text-xl font-black' : 'text-[#f5ebe1]'}`;
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+        el.style.setProperty('--dx', `${(Math.random() - 0.5) * 60}px`);
+        el.innerHTML = isCrit ? `CRIT! +${this.formatNumber(amount)} ⚡` : `+${this.formatNumber(amount)}`;
+
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 1000);
+
+        const icons = isCrit ? ['⚡', '💥', '✨', '🐾'] : ['❤️', '🐾', '✨', '🌸', '🍵'];
+        for (let i = 0; i < (isCrit ? 3 : 2); i++) {
+          const p = document.createElement('div');
+          p.className = 'scritch-float-num text-base select-none';
+          p.style.left = `${x + (Math.random() - 0.5) * 40}px`;
+          p.style.top = `${y + (Math.random() - 0.5) * 40}px`;
+          p.style.setProperty('--dx', `${(Math.random() - 0.5) * 80}px`);
+          p.textContent = icons[Math.floor(Math.random() * icons.length)];
+          container.appendChild(p);
+          setTimeout(() => p.remove(), 950);
+        }
+      }
+
+      triggerRandomDialogue() {
+        const bubble = document.getElementById('speech-bubble');
+        const text = document.getElementById('speech-text');
+        const q = SCARAMEOW_QUOTES[Math.floor(Math.random() * SCARAMEOW_QUOTES.length)];
+        text.textContent = `"${q}"`;
+      }
+
+      rotateNews() {
+        this.newsIndex = (this.newsIndex + 1) % NEWS_HEADLINES.length;
+        const el = document.getElementById('news-ticker-text');
+        el.style.opacity = '0';
+        setTimeout(() => {
+          el.textContent = NEWS_HEADLINES[this.newsIndex];
+          el.style.opacity = '1';
+        }, 300);
+      }
+
+      spawnGoldenCookie() {
+        const el = document.getElementById('golden-cookie');
+        const screenW = window.innerWidth - 80;
+        const screenH = window.innerHeight - 150;
+        const randX = 40 + Math.random() * screenW;
+        const randY = 80 + Math.random() * screenH;
+
+        el.style.left = `${randX}px`;
+        el.style.top = `${randY}px`;
+        el.classList.remove('hidden');
+
+        this.goldenVanishTimer = setTimeout(() => {
+          el.classList.add('hidden');
+        }, 14000);
+      }
+
+      clickGoldenCookie() {
+        const el = document.getElementById('golden-cookie');
+        el.classList.add('hidden');
+        clearTimeout(this.goldenVanishTimer);
+
+        this.goldenFeathersCaught++;
+        sound.playGolden();
+
+        const outcomes = ['frenzy', 'click_frenzy', 'lucky'];
+        const choice = outcomes[Math.floor(Math.random() * outcomes.length)];
+
+        if (choice === 'frenzy') {
+          this.buffMultiplier = 7;
+          this.buffTimer = 30.0;
+          this.buffName = 'Catnip Frenzy! (7x PPS)';
+          this.showToast('🪶 GOLDEN FEATHER! 7x Purr Frenzy for 30s!', 'bg-[#3b271a] border-t border-amber-400');
+        } else if (choice === 'click_frenzy') {
+          this.buffMultiplier = 1;
+          this.buffTimer = 13.0;
+          this.buffName = 'Scritch Overdrive!';
+          this.showToast('🪶 GOLDEN FEATHER! 77x Scritch Power for 13s!', 'bg-[#3b271a] border-t border-amber-400');
+        } else {
+          const bonus = Math.max(15, Math.floor(this.purrs * 0.15) + (this.pps * 120));
+          this.purrs += bonus;
+          this.allTimePurrs += bonus;
+          this.showToast(`🪶 FORTUNE FOUND! +${this.formatNumber(bonus)} Purrs instantly!`, 'bg-[#3b271a] border-t border-amber-400');
+        }
+
+        this.recalcStats();
+        this.checkAchievements();
+        this.renderCounters();
+      }
+
+      tick(dt) {
+        this.timePlayedSecs += dt;
+
+        if (this.pps > 0) {
+          const gain = this.pps * dt;
+          this.purrs += gain;
+          this.allTimePurrs += gain;
+        }
+
+        if (this.isZoomiesActive) {
+          this.zoomiesTimer -= dt;
+          if (this.zoomiesTimer <= 0) {
+            this.isZoomiesActive = false;
+            this.zoomiesMeter = 0;
+            this.recalcStats();
+          }
+        } else {
+          this.zoomiesMeter = Math.max(0, this.zoomiesMeter - (dt * 12));
+        }
+
+        if (this.buffTimer > 0) {
+          this.buffTimer -= dt;
+          if (this.buffTimer <= 0) {
+            this.buffTimer = 0;
+            this.buffMultiplier = 1;
+            this.buffName = '';
+            this.recalcStats();
+          }
+        }
+
+        this.goldenTimer -= dt;
+        if (this.goldenTimer <= 0) {
+          this.spawnGoldenCookie();
+          this.goldenTimer = 60 + Math.random() * 50;
+        }
+
+        this.renderCounters();
+        this.updateDynamicUi();
+      }
+
+      checkAchievements() {
+        for (const a of ACHIEVEMENTS) {
+          if (!this.unlockedAchievements.includes(a.id) && a.check(this)) {
+            this.unlockedAchievements.push(a.id);
+            sound.playAchievement();
+            this.showToast(`🏮 Conquest Unlocked: ${a.name}!`, 'bg-[#36251b] border-t border-amber-400');
+            this.renderAchievementsModal();
+            this.renderBadgesCount();
+          }
+        }
+      }
+
+      calculateBellsOnReset() {
+        if (this.allTimePurrs < 1000000) return 0;
+        return Math.floor(Math.cbrt(this.allTimePurrs / 1000000));
+      }
+
+      ascend() {
+        const earnedBells = this.calculateBellsOnReset();
+        if (earnedBells <= 0) return;
+
+        this.starlightBells += earnedBells;
+        this.ascensions += 1;
+
+        this.purrs = 0;
+        this.buildings = {};
+        this.upgrades = [];
+        this.zoomiesMeter = 0;
+        this.isZoomiesActive = false;
+        this.buffMultiplier = 1;
+        this.buffTimer = 0;
+
+        sound.playGolden();
+        this.recalcStats();
+        this.checkAchievements();
+        this.save();
+        this.renderAll();
+        this.showToast(`✨ Ascended! Received +${earnedBells} Starlight Bells!`, 'bg-[#36251b] border-t border-amber-400');
+      }
+
+      formatNumber(n) {
+        if (n === undefined || isNaN(n)) return '0';
+        if (n < 1000) return Math.floor(n).toLocaleString();
+        const suffixes = ['', 'k', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'];
+        const i = Math.floor(Math.log10(n) / 3);
+        if (i < suffixes.length) {
+          const formatted = (n / Math.pow(10, i * 3)).toFixed(2);
+          return `${formatted} ${suffixes[i]}`;
+        }
+        return n.toExponential(2);
+      }
+
+      formatTime(secs) {
+        const s = Math.floor(secs % 60);
+        const m = Math.floor((secs / 60) % 60);
+        const h = Math.floor(secs / 3600);
+        if (h > 0) return `${h}h ${m}m ${s}s`;
+        if (m > 0) return `${m}m ${s}s`;
+        return `${s}s`;
+      }
+
+      renderCounters() {
+        document.getElementById('purr-counter').textContent = this.formatNumber(this.purrs);
+        document.getElementById('pps-counter').textContent = this.formatNumber(this.pps);
+        document.getElementById('click-power-counter').textContent = this.formatNumber(this.currentClickPower);
+        document.getElementById('total-pets-count').textContent = `${this.totalClicks.toLocaleString()} scritches`;
+      }
+
+      updateDynamicUi() {
+        const bar = document.getElementById('zoomies-bar');
+        const status = document.getElementById('zoomies-status');
+        const frenzyTimer = document.getElementById('frenzy-timer');
+        const frenzySecs = document.getElementById('frenzy-secs');
+
+        if (this.isZoomiesActive) {
+          bar.style.width = '100%';
+          status.textContent = '🍵 KETTLE BOILING!';
+          status.className = 'text-[11px] text-amber-400 font-extrabold animate-pulse';
+          frenzyTimer.classList.remove('hidden');
+          frenzySecs.textContent = this.zoomiesTimer.toFixed(1);
+        } else {
+          bar.style.width = `${this.zoomiesMeter}%`;
+          frenzyTimer.classList.add('hidden');
+          if (this.zoomiesMeter > 70) {
+            status.textContent = '⚡ Rapid Purring!';
+            status.className = 'text-[11px] text-amber-300 font-bold';
+          } else if (this.zoomiesMeter > 30) {
+            status.textContent = '✨ Secretly Enjoying It';
+            status.className = 'text-[11px] text-[#cfbeaf]';
+          } else {
+            status.textContent = 'Calm & Disdainful';
+            status.className = 'text-[11px] text-[#9c897a]';
+          }
+        }
+
+        const moodEmoji = document.getElementById('mood-emoji');
+        const moodTitle = document.getElementById('mood-title');
+        const moodDesc = document.getElementById('mood-desc');
+
+        if (this.allTimePurrs > 1000000000) {
+          moodEmoji.textContent = '🌌';
+          moodTitle.textContent = 'Omnipresent Celestial Kitty';
+          moodDesc.textContent = 'Ruler of Irminsul, purrs across galaxies.';
+        } else if (this.allTimePurrs > 10000000) {
+          moodEmoji.textContent = '😻';
+          moodTitle.textContent = 'Completely Domesticated Sovereign';
+          moodDesc.textContent = 'Vigorously kneading the teacup edge.';
+        } else if (this.allTimePurrs > 50000) {
+          moodEmoji.textContent = '😼';
+          moodTitle.textContent = 'Secretly Addicted to Scritches';
+          moodDesc.textContent = 'Pretends to hate it, but leans into your palm.';
+        } else {
+          moodEmoji.textContent = '😾';
+          moodTitle.textContent = 'Tsundere Teacup Inhabitant';
+          moodDesc.textContent = 'Glares menacingly from inside his mug.';
+        }
+
+        for (const b of BUILDINGS) {
+          const btn = document.getElementById(`building-card-${b.id}`);
+          if (btn) {
+            const cost = this.getBuildingCost(b, this.buyMultiplier);
+            const canAfford = this.purrs >= cost;
+            if (canAfford) {
+              btn.classList.add('wood-affordable');
+              btn.classList.remove('opacity-50');
+            } else {
+              btn.classList.remove('wood-affordable');
+              btn.classList.add('opacity-50');
+            }
+            const costEl = document.getElementById(`building-cost-${b.id}`);
+            if (costEl) costEl.textContent = this.formatNumber(cost);
+          }
+        }
+
+        for (const u of UPGRADES) {
+          const upBtn = document.getElementById(`upgrade-icon-${u.id}`);
+          if (upBtn) {
+            const canAfford = this.purrs >= u.cost;
+            if (canAfford) {
+              upBtn.classList.remove('opacity-40');
+              upBtn.classList.add('tea-tag-ready');
+            } else {
+              upBtn.classList.add('opacity-40');
+              upBtn.classList.remove('tea-tag-ready');
+            }
+          }
+        }
+      }
+
+      renderBuildings() {
+        const container = document.getElementById('buildings-list');
+        container.innerHTML = '';
+
+        for (const b of BUILDINGS) {
+          const count = this.buildings[b.id] || 0;
+          const cost = this.getBuildingCost(b, this.buyMultiplier);
+          const bMult = this.buildingMults[b.id] || 1;
+          const currentPps = count * b.basePps * bMult * this.globalMultiplier;
+
+          const card = document.createElement('div');
+          card.id = `building-card-${b.id}`;
+          card.className = `p-3 wood-card rounded-xl flex items-center justify-between gap-3 cursor-pointer select-none opacity-50`;
+          
+          card.onclick = () => this.buyBuilding(b);
+
+          card.innerHTML = `
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-lg bg-[#1a130e] border border-[#3b2d23] flex items-center justify-center text-2xl shrink-0 shadow-inner">
+                ${b.icon}
+              </div>
+              <div>
+                <div class="font-bold text-[#f5ebe1] text-xs sm:text-sm flex items-center gap-2">
+                  <span>${b.name}</span>
+                </div>
+                <div class="text-[11px] text-[#a99788] line-clamp-1">${b.desc}</div>
+                <div class="text-[10px] text-[#66d3a2] mt-0.5">
+                  +${this.formatNumber(b.basePps * bMult)} PPS each • Yielding ${this.formatNumber(currentPps)}/s
+                </div>
+              </div>
+            </div>
+
+            <div class="text-right shrink-0 flex flex-col items-end">
+              <span class="text-base sm:text-lg font-title font-black text-[#f5ebe1] font-mono">${count}</span>
+              <div class="flex items-center gap-1 text-xs font-bold font-mono text-amber-300 mt-0.5">
+                <span>🐾</span>
+                <span id="building-cost-${b.id}">${this.formatNumber(cost)}</span>
+              </div>
+            </div>
+          `;
+
+          container.appendChild(card);
+        }
+      }
+
+      renderUpgrades() {
+        const grid = document.getElementById('upgrades-grid');
+        grid.innerHTML = '';
+
+        const available = UPGRADES.filter(u => !this.upgrades.includes(u.id));
+
+        if (available.length === 0) {
+          grid.innerHTML = `<span class="text-xs text-amber-400 font-semibold p-2">🎉 All tea master techniques unlocked!</span>`;
+          return;
+        }
+
+        for (const u of available) {
+          const iconBtn = document.createElement('button');
+          iconBtn.id = `upgrade-icon-${u.id}`;
+          iconBtn.title = `${u.name} (${this.formatNumber(u.cost)} Purrs)\n${u.desc}`;
+          iconBtn.className = `tea-tag w-11 h-11 flex items-center justify-center text-xl relative opacity-40`;
+          iconBtn.innerHTML = `
+            ${u.icon}
+            <span class="absolute -bottom-1 -right-1 text-[9px] bg-[#1a130e] text-amber-300 font-bold px-1 rounded font-mono border border-[#382b21]">
+              ${this.formatNumber(u.cost)}
+            </span>
+          `;
+          iconBtn.onclick = () => this.buyUpgrade(u);
+          grid.appendChild(iconBtn);
+        }
+
+        document.getElementById('upgrades-unlocked-count').textContent = `${this.upgrades.length} / ${UPGRADES.length} mastered`;
+      }
+
+      renderBadgesCount() {
+        const el = document.getElementById('achieve-count-badge');
+        el.textContent = `${this.unlockedAchievements.length}/${ACHIEVEMENTS.length}`;
+      }
+
+      renderAchievementsModal() {
+        const gallery = document.getElementById('achievements-gallery');
+        gallery.innerHTML = '';
+
+        for (const a of ACHIEVEMENTS) {
+          const unlocked = this.unlockedAchievements.includes(a.id);
+          const item = document.createElement('div');
+          item.className = `p-3 rounded-xl border flex items-center gap-3 transition ${
+            unlocked 
+              ? 'bg-[#2b211a] border-amber-600/40 text-[#f5ebe1] shadow-md' 
+              : 'bg-[#18120d] border-[#2b2017] text-[#716154] opacity-50'
+          }`;
+
+          item.innerHTML = `
+            <div class="w-10 h-10 rounded-lg ${unlocked ? 'bg-amber-600/20 text-amber-300' : 'bg-[#231b15] text-[#5e4f44]'} flex items-center justify-center text-2xl shrink-0">
+              ${unlocked ? a.icon : '🔒'}
+            </div>
+            <div>
+              <div class="font-bold text-xs sm:text-sm ${unlocked ? 'text-amber-200' : 'text-[#8f7e71]'}">${a.name}</div>
+              <div class="text-[11px] text-[#a99788]">${a.desc}</div>
+            </div>
+          `;
+          gallery.appendChild(item);
+        }
+
+        const pct = Math.round((this.unlockedAchievements.length / ACHIEVEMENTS.length) * 100);
+        document.getElementById('achievements-total-progress').textContent = 
+          `${this.unlockedAchievements.length} of ${ACHIEVEMENTS.length} Unlocked (${pct}%)`;
+      }
+
+      renderStatsModal() {
+        document.getElementById('stat-current-purrs').textContent = this.formatNumber(this.purrs);
+        document.getElementById('stat-alltime-purrs').textContent = this.formatNumber(this.allTimePurrs);
+        document.getElementById('stat-clicks').textContent = this.totalClicks.toLocaleString();
+        document.getElementById('stat-pet-purrs').textContent = this.formatNumber(this.manualPurrsEarned);
+        document.getElementById('stat-pps').textContent = `${this.formatNumber(this.pps)}/sec`;
+        document.getElementById('stat-golden-caught').textContent = this.goldenFeathersCaught;
+        document.getElementById('stat-ascension-bells').textContent = 
+          `${this.starlightBells} bells (+${this.starlightBells * 10}% global bonus)`;
+        document.getElementById('stat-time-played').textContent = this.formatTime(this.timePlayedSecs);
+      }
+
+      renderPrestigeModal() {
+        const pending = this.calculateBellsOnReset();
+        document.getElementById('prestige-current-bells').textContent = 
+          `${this.starlightBells} (+${this.starlightBells * 10}%)`;
+        document.getElementById('prestige-pending-bells').textContent = `+${pending} Bells`;
+        
+        const nextTarget = Math.pow(pending + 1, 3) * 1000000;
+        document.getElementById('prestige-next-cost').textContent = `${this.formatNumber(nextTarget)} All-Time Purrs`;
+
+        const btn = document.getElementById('btn-confirm-ascend');
+        btn.disabled = pending <= 0;
+      }
+
+      renderAll() {
+        this.renderCounters();
+        this.renderBuildings();
+        this.renderUpgrades();
+        this.renderBadgesCount();
+        this.updateDynamicUi();
+      }
+
+      showToast(msg, colorClass = 'bg-[#291e17] border-t border-amber-500') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `p-3 rounded-xl border-t text-xs sm:text-sm font-bold shadow-2xl text-[#f5ebe1] flex items-center gap-2 transform transition-all duration-300 translate-y-3 opacity-0 ${colorClass}`;
+        toast.innerHTML = msg;
+        container.appendChild(toast);
+
+        requestAnimationFrame(() => {
+          toast.classList.remove('translate-y-3', 'opacity-0');
+        });
+
+        setTimeout(() => {
+          toast.classList.add('opacity-0', 'translate-y-2');
+          setTimeout(() => toast.remove(), 300);
+        }, 3500);
+      }
+
+      setupEvents() {
+        const catTarget = document.getElementById('cat-wrapper');
+        catTarget.addEventListener('mousedown', (e) => this.pet(e));
+        catTarget.addEventListener('keydown', (e) => {
+          if (e.key === ' ' || e.key === 'Enter') {
+            e.preventDefault();
+            this.pet(null);
+          }
+        });
+
+        const bigBtn = document.getElementById('btn-big-scritch');
+        if (bigBtn) {
+          bigBtn.addEventListener('mousedown', (e) => this.pet(e));
+        }
+
+        document.getElementById('golden-cookie').addEventListener('click', () => this.clickGoldenCookie());
+
+        document.querySelectorAll('.buy-mult-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.buy-mult-btn').forEach(b => {
+              b.classList.remove('bg-[#2d2219]', 'text-amber-400');
+              b.classList.add('text-[#8f7e71]');
+            });
+            btn.classList.add('bg-[#2d2219]', 'text-amber-400');
+            btn.classList.remove('text-[#8f7e71]');
+            this.buyMultiplier = parseInt(btn.dataset.mult, 10);
+            this.renderBuildings();
+          });
+        });
+
+        const soundBtn = document.getElementById('btn-sound');
+        const soundIcon = document.getElementById('sound-icon');
+        soundBtn.addEventListener('click', () => {
+          sound.enabled = !sound.enabled;
+          soundIcon.textContent = sound.enabled ? '🔊' : '🔇';
+          this.showToast(sound.enabled ? '🔊 Chimes Enabled' : '🔇 Chimes Muted');
+        });
+
+        this.bindModal('btn-stats', 'modal-stats', () => this.renderStatsModal());
+        this.bindModal('btn-achievements', 'modal-achievements', () => this.renderAchievementsModal());
+        this.bindModal('btn-prestige', 'modal-prestige', () => this.renderPrestigeModal());
+        this.bindModal('btn-export-save', 'modal-save', () => {
+          document.getElementById('save-data-textarea').value = this.exportSave();
+        });
+
+        document.getElementById('btn-confirm-ascend').addEventListener('click', () => {
+          this.ascend();
+          document.getElementById('modal-prestige').classList.add('hidden');
+        });
+
+        document.getElementById('btn-save-manual').addEventListener('click', () => {
+          this.save();
+          this.showToast('💾 Ledger Saved to Browser!', 'bg-[#291e17] border-t border-amber-500');
+        });
+
+        document.getElementById('btn-copy-save').addEventListener('click', () => {
+          const txt = document.getElementById('save-data-textarea');
+          txt.select();
+          navigator.clipboard.writeText(txt.value);
+          this.showToast('📋 Save code copied!');
+        });
+
+        document.getElementById('btn-import-save').addEventListener('click', () => {
+          const txt = document.getElementById('save-data-textarea').value;
+          if (this.importSave(txt)) {
+            document.getElementById('modal-save').classList.add('hidden');
+            this.showToast('📥 Save data restored successfully!', 'bg-[#291e17] border-t border-amber-500');
+          } else {
+            alert('Invalid save code!');
+          }
+        });
+
+        document.getElementById('btn-wipe-save').addEventListener('click', () => {
+          if (confirm('Are you sure you want to reset all progress? Scarameow will forget your scritches!')) {
+            localStorage.removeItem('scarameow_clicker_save');
+            location.reload();
+          }
+        });
+
+        document.querySelectorAll('.modal-close').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.target.closest('.fixed').classList.add('hidden');
+          });
+        });
+      }
+
+      bindModal(btnId, modalId, onOpen) {
+        document.getElementById(btnId).addEventListener('click', () => {
+          if (onOpen) onOpen();
+          document.getElementById(modalId).classList.remove('hidden');
+        });
+      }
+
+      exportSave() {
+        const data = {
+          purrs: this.purrs,
+          allTimePurrs: this.allTimePurrs,
+          totalClicks: this.totalClicks,
+          manualPurrsEarned: this.manualPurrsEarned,
+          goldenFeathersCaught: this.goldenFeathersCaught,
+          zoomiesTriggered: this.zoomiesTriggered,
+          critTriggered: this.critTriggered,
+          maxCadence: this.maxCadence,
+          timePlayedSecs: this.timePlayedSecs,
+          ascensions: this.ascensions,
+          starlightBells: this.starlightBells,
+          buildings: this.buildings,
+          upgrades: this.upgrades,
+          unlockedAchievements: this.unlockedAchievements
+        };
+        return btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+      }
+
+      importSave(encodedStr) {
+        try {
+          const decoded = JSON.parse(decodeURIComponent(escape(atob(encodedStr.trim()))));
+          if (decoded && typeof decoded.purrs === 'number') {
+            this.purrs = decoded.purrs || 0;
+            this.allTimePurrs = decoded.allTimePurrs || 0;
+            this.totalClicks = decoded.totalClicks || 0;
+            this.manualPurrsEarned = decoded.manualPurrsEarned || 0;
+            this.goldenFeathersCaught = decoded.goldenFeathersCaught || 0;
+            this.zoomiesTriggered = decoded.zoomiesTriggered || 0;
+            this.critTriggered = decoded.critTriggered || 0;
+            this.maxCadence = decoded.maxCadence || 0;
+            this.timePlayedSecs = decoded.timePlayedSecs || 0;
+            this.ascensions = decoded.ascensions || 0;
+            this.starlightBells = decoded.starlightBells || 0;
+            this.buildings = decoded.buildings || {};
+            this.upgrades = decoded.upgrades || [];
+            this.unlockedAchievements = decoded.unlockedAchievements || [];
+            this.recalcStats();
+            this.renderAll();
+            return true;
+          }
+        } catch(e) {
+          console.error(e);
+        }
+        return false;
+      }
+
+      save() {
+        try {
+          localStorage.setItem('scarameow_clicker_save', this.exportSave());
+        } catch(e) {}
+      }
+
+      loadSave() {
+        try {
+          const saved = localStorage.getItem('scarameow_clicker_save');
+          if (saved) this.importSave(saved);
+        } catch(e) {}
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      window.game = new Game();
+    });
+  </script>
+</body>
+</html>
